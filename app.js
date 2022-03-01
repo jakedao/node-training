@@ -8,7 +8,9 @@ const TOURS_API = '/api/v1/tours';
 const USERS_API = '/api/v1/users';
 
 const app = express();
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 // app.use((req, res, next) => {
 //   console.log('From middleware with hear 😍');
 //   req.requestedAt = new Date().toISOString();
