@@ -11,6 +11,7 @@ const app = express();
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+app.use(express.json()); // // for parsing application/json => send json data in req.body
 // app.use((req, res, next) => {
 //   console.log('From middleware with hear 😍');
 //   req.requestedAt = new Date().toISOString();

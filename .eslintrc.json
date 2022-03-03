@@ -5,6 +5,8 @@
     "prettier/prettier": "error",
     "spaced-comment": "off",
     "no-console": "warn",
-    "no-unused-vars": "warn"
+    "no-unused-vars": "warn",
+    "no-underscore-dangle": "off",
+    "no-process-exit": "warn"
   }
 }
