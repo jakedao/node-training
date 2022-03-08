@@ -7,6 +7,6 @@
     "no-console": "warn",
     "no-unused-vars": "warn",
     "no-underscore-dangle": "off",
-    "no-process-exit": "warn"
+    "no-process-exit": "warn",
   }
 }
