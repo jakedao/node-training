@@ -19,7 +19,8 @@
     "mongoose": "^5.13.14",
     "morgan": "^1.10.0",
     "slugify": "^1.6.5",
-    "superagent": "^7.1.1"
+    "superagent": "^7.1.1",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "eslint": "^8.10.0",

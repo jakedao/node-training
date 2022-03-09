@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -10,6 +11,13 @@ const tourSchema = new mongoose.Schema(
       trim: true, // Automatically remove whitespace
       maxlength: [20, 'The tour name should be <= 20'],
       minlength: [5, 'The tour name should >= 5'],
+    },
+    customerEmail: {
+      type: String,
+      validate: [
+        validator.isEmail, // using third-party validator
+        'Should be provided an string with email format (E.g: abc@email.com)',
+      ],
     },
     slug: String,
     duration: {
@@ -48,6 +56,13 @@ const tourSchema = new mongoose.Schema(
     },
     priceDiscount: {
       type: Number,
+      validate: {
+        message: 'Discount price {VALUE} should be below the regular price',
+        validator: function (value) {
+          // this keyword is only accessible when creating a NEW DOCUMENT
+          return value < this.price;
+        },
+      },
     },
     summary: {
       type: String,
