@@ -5,21 +5,17 @@ const {
   getTour,
   updateTour,
   deleteTour,
+  getTopCheap,
+  getTourStats,
+  getMonthlyPlan,
 } = require('../controllers/tourController');
 
 const router = express.Router();
 
-const checkBody = (req, res, next) => {
-  if (!req.body?.name || !req.body?.price) {
-    return res.status(400).json({
-      status: 'failed',
-      message: 'Request body is empty',
-    });
-  }
-  next();
-};
-
-router.route('/').get(getAllTours).post(checkBody, createTour);
+router.route('/top-5-tours').get(getTopCheap, getAllTours);
+router.route('/stats').get(getTourStats);
+router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router.route('/').get(getAllTours).post(createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 module.exports = router;
