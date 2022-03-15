@@ -89,6 +89,7 @@ const tourSchema = new mongoose.Schema(
     },
     secretTour: { type: Boolean, default: false },
   },
+  // for virtual object - using in response not change model
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
