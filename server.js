@@ -23,6 +23,15 @@ mongoose
 app.get('/', (req, res) => {
   res.status(200).send('Hello from the server side ! 😙');
 });
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`App is running on port ${port} ...`);
+});
+
+// Unhandle Reject handling
+process.on('unhandledRejection', (err) => {
+  console.log(err.name, err.message);
+  console.log('Unhandle rejection - server is shutting down...💥');
+  server.close(() => {
+    process.exit(1);
+  });
 });

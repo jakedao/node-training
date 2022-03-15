@@ -6,15 +6,21 @@ const handleCastErrDB = (err) => {
   return new AppError(message, 400);
 };
 
-const handleDubplicatedFields = (err) => {
+const handleDubplicatedFieldsDB = (err) => {
   const errorField = { ...err.keyValue };
-
-  console.log('checking', errorField);
 
   const message = `Duplicated field ${Object.keys(errorField)[0]} with value: ${
     Object.values(errorField)[0]
   }`;
   return new AppError(message, 400);
+};
+
+const handleValidatonErrorDB = (err) => {
+  const errorMsg = Object.keys(err.errors).reduce(
+    (acc, error) => acc + `Field ${[error]}: ${err.errors[error].message} \n `,
+    ''
+  );
+  return new AppError(errorMsg, 400);
 };
 
 const sendErrorMsgToDev = (err, res) => {
@@ -28,7 +34,7 @@ const sendErrorMsgToDev = (err, res) => {
 
 const sendErrorMsgToProd = (err, res) => {
   // unhandle error - no showing raw errer msg to client
-  if (!err.isOperational) {
+  if (!err?.isOperational) {
     err.status = 'error';
     err.message = 'Something went wrong !!!';
     err.statusCode = 500;
@@ -51,9 +57,15 @@ module.exports = (err, req, res, next) => {
     sendErrorMsgToDev(err, res);
   } else {
     let error = { ...err };
+
     if (err.name === DB_ERROR.CAST_ERROR) error = handleCastErrDB(err);
-    if (err.code === DB_ERROR.DUPLICATED_FIELDS)
-      error = handleDubplicatedFields(err);
+    if (err.code === DB_ERROR.DUPLICATED_FIELDS) {
+      error = handleDubplicatedFieldsDB(err);
+    }
+    if (err.name === DB_ERROR.VALIDATION_ERORR) {
+      error = handleValidatonErrorDB(err);
+    }
+
     sendErrorMsgToProd(error, res);
   }
 };
