@@ -1,4 +1,5 @@
-const User = require('../models/userModal');
+const User = require('../models/userModel');
+const AppError = require('../utils/appError');
 
 const catchAsync = require('../utils/catchAsync');
 
@@ -33,9 +34,19 @@ exports.updateUser = (req, res) => {
   });
 };
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'API is implementing',
+exports.deleteUser = catchAsync(async (req, res, next) => {
+  const requestedParams = req.params;
+  console.log('params', requestedParams);
+  const deletedUser = await User.findByIdAndDelete(requestedParams.id);
+
+  if (!deletedUser) {
+    return next(
+      new AppError(`No user found with id: ${requestedParams.id}`, 404)
+    );
+  }
+
+  res.status(204).json({
+    status: 'success',
+    // message: 'User has been deleted successful',
   });
-};
+});
