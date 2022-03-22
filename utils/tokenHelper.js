@@ -13,8 +13,13 @@ const validateToken = async (token) => {
   return await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 };
 
-const isValidToken = async (token) => {
-  return;
+const getTokenFromHeader = (headers) => {
+  let token;
+  const authorization = headers.authorization;
+  if (authorization && authorization.startsWith('Bearer')) {
+    token = authorization.split(' ')[1];
+  }
+  return token;
 };
 
-module.exports = { signToken, validateToken };
+module.exports = { signToken, validateToken, getTokenFromHeader };

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -44,10 +45,13 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 // MIDDLEWARE
 
+// hashing password when saved to database
 userSchema.pre('save', async function (next) {
   // if password field is not modified then return next function
   if (!this.isModified('password')) return next();
@@ -60,6 +64,17 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// generate modified date of password automatically
+userSchema.pre('save', function (next) {
+  if (this.isModified('password') || this.isNew) return next();
+  // reduce 1 secs as the delay of token generation
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+// MODEL METHODS
+
+// checking password compared with hased password saving in DB
 userSchema.methods.correctPassword = async function (
   inputPassword,
   userPassword
@@ -80,6 +95,19 @@ userSchema.methods.changedPasswordAt = function (jwtTimeStamp) {
     return jwtTimeStamp < modifiedDateTimeStamp;
   }
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 60000;
+  console.log('checking passwordReset expires time', this.passwordResetExpires);
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
