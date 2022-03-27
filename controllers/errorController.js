@@ -1,4 +1,4 @@
-const { DB_ERROR } = require('../constants/error');
+const { DB_ERROR, TOKEN_ERROR } = require('../constants/error');
 const AppError = require('../utils/appError');
 
 const handleCastErrDB = (err) => {
@@ -22,6 +22,12 @@ const handleValidatonErrorDB = (err) => {
   );
   return new AppError(errorMsg, 400);
 };
+
+const handleJWTError = (err) =>
+  new AppError('Invalid token - Please relog-in', 401);
+
+const handleJWTExpired = (err) =>
+  new AppError('Token expired - Please relog-in', 401);
 
 const sendErrorMsgToDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -47,7 +53,7 @@ const sendErrorMsgToProd = (err, res) => {
   });
 };
 
-// Global error handling
+// Global error handling - Main features
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -58,13 +64,22 @@ module.exports = (err, req, res, next) => {
   } else {
     let error = { ...err };
 
+    // DB - Cast Id error handling
     if (err.name === DB_ERROR.CAST_ERROR) error = handleCastErrDB(err);
-    if (err.code === DB_ERROR.DUPLICATED_FIELDS) {
+
+    // DB - field duplicated
+    if (err.code === DB_ERROR.DUPLICATED_FIELDS)
       error = handleDubplicatedFieldsDB(err);
-    }
-    if (err.name === DB_ERROR.VALIDATION_ERORR) {
+
+    // DB - Validation Error
+    if (err.name === DB_ERROR.VALIDATION_ERORR)
       error = handleValidatonErrorDB(err);
-    }
+
+    // TOKEN - handle token error
+    if (err.name === TOKEN_ERROR.TOKEN_ERROR) error = handleJWTError(err);
+
+    // TOKEN - handle token expired
+    if (err.name === TOKEN_ERROR.TOKEN_EXPIRED) error = handleJWTExpired(err);
 
     sendErrorMsgToProd(error, res);
   }

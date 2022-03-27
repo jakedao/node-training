@@ -21,7 +21,7 @@ moongose
 
 const importData = async () => {
   try {
-    const tour = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`));
+    const tour = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`));
     await Tour.create(tour);
     console.log('Data imported successfully');
   } catch (err) {
