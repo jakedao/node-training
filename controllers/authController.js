@@ -14,23 +14,49 @@ const { API_STATUS } = require('../constants/common');
 const { AUTH_MSG } = require('../constants/message');
 const { sendEmail } = require('../utils/email');
 
+const createSendToken = (user, statusCode, res) => {
+  // create token
+  const token = signToken(user._id);
+
+  // prepare cookies opts
+  const cookieOpts = {
+    expires: new Date(
+      // Current Date + 4 * days * hours * seconds * miliseconds
+      Date.now() + process.env.JWT_COOKIES_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    secure: false, // TRUE - only set cookies when call with https request
+    httpOnly: true, // can not be accessed or modified by browser => Prevent site scripting attack
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOpts.secure = true;
+
+  // set jwt to cookie storage
+  res.cookie('jwt', token, cookieOpts);
+
+  // scope-out password in user response
+  user.password = undefined;
+
+  // send token
+  res.status(statusCode).json({
+    message: 'success',
+    access_token: token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signUp = catchAsync(async (req, res) => {
-  const { name, email, password, passwordConfirm } = req.body;
+  const { name, email, password, passwordConfirm, role } = req.body;
   const newUser = await User.create({
     name,
     email,
     password,
     passwordConfirm,
+    role,
   });
 
-  const token = signToken(newUser._id);
-  res.status(API_STATUS.CREATED).json({
-    status: 'success',
-    access_token: token,
-    message: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.signIn = catchAsync(async (req, res, next) => {

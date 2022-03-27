@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
 
+// const User = require('./userModel');
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -88,6 +90,35 @@ const tourSchema = new mongoose.Schema(
       type: [Date],
     },
     secretTour: { type: Boolean, default: false },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+      },
+    ],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User', // this is referencing to User Model
+      },
+    ],
   },
   // for virtual object - using in response not change model
   {
@@ -105,6 +136,17 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// Embedded User Model into guide properties - JUST FOR DEMO EMBEDDED DATA
+// tourSchema.pre('save', async function (next) {
+//   // iterate over the User model to find the matched users
+//   const guidePromises = this.guides.map(
+//     async (userId) => await User.findById(userId)
+//   );
+
+//   this.guides = await Promise.all(guidePromises);
+//   next();
+// });
 
 // tourSchema.post('save', function (doc, next) {
 //   console.log('its running after ');
