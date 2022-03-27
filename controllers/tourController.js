@@ -41,7 +41,19 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
   const requestedParams = req.params;
-  const foundTour = await Tour.findById(requestedParams.id);
+
+  // // Refercing (populating) guides ID and embed into tour details
+  // const foundTour = await .populate({
+  //   path: 'guides temp', // properties to be referenced,
+  //   select: '-__v -role',
+  // });
+
+  const features = new APIFeatures(Tour.findById(requestedParams.id)).reference(
+    'guides',
+    ['__v', 'role']
+  );
+
+  const foundTour = await features.query;
 
   if (!foundTour) {
     return next(new AppError(`No tour found with ${requestedParams.id}`, 404));

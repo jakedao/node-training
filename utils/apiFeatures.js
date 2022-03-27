@@ -48,6 +48,28 @@ class APIFeatures {
 
     return this;
   }
+
+  // populating and filter properties
+  reference(refProperties, filters) {
+    let filterArr, refPath;
+
+    refPath =
+      typeof refProperties === 'string'
+        ? refProperties
+        : refProperties.join(' ');
+
+    filterArr =
+      typeof filters === 'string'
+        ? '-' + filters
+        : filters.reduce((acc, field) => acc + `-${field} `, '');
+
+    this.query = this.query.populate({
+      path: refPath, // properties to be referenced
+      select: filterArr,
+    });
+
+    return this;
+  }
 }
 
 module.exports = APIFeatures;
