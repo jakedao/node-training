@@ -9,10 +9,12 @@ const hpp = require('hpp');
 const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoute');
 const tourRouter = require('./routes/tourRoute');
+const reviewRouter = require('./routes/reviewRoute');
 const globalErrorHandler = require('./controllers/errorController');
 
 const TOURS_API = '/api/v1/tours';
 const USERS_API = '/api/v1/users';
+const REVIEWS_API = '/api/v1/reviews';
 
 // init app
 const app = express();
@@ -57,6 +59,7 @@ app.use(
 
 app.use(USERS_API, userRouter);
 app.use(TOURS_API, tourRouter);
+app.use(REVIEWS_API, reviewRouter);
 
 // unhandled route handling
 app.all('*', (req, res, next) => {

@@ -77,6 +77,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
+// NOT return inactive user
 userSchema.pre(/^find/, function (next) {
   this.find({ active: true });
   return next();

@@ -127,8 +127,16 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// VIRTUAL
 tourSchema.virtual('durationWeeks').get(function () {
   return (this.duration / 7).toFixed(2);
+});
+
+// virtual populating
+tourSchema.virtual('reviews', {
+  ref: 'Review', // Model to ref
+  localField: '_id', // reference to corresponding field in local Modal
+  foreignField: 'reviewedOn', // field in Refererence Model
 });
 
 // DOCUMENT MIDDLEWARE: run before save() and create() DOCUMENT
@@ -169,7 +177,6 @@ tourSchema.pre(/^find/, function (next) {
 });
 
 //AGREGATION MIDDLEWARE
-
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
   console.log('Middle ware from aggregating', this.pipeline());

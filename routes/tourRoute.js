@@ -11,7 +11,12 @@ const {
   getMonthlyPlan,
 } = require('../controllers/tourController');
 
+const reviewRouter = require('./reviewRoute');
+
 const router = express.Router();
+
+// Nested Route - Express Built-in
+router.use('/:tourId/reviews', reviewRouter);
 
 router.route('/top-5-tours').get(getTopCheap, getAllTours);
 router.route('/stats').get(getTourStats);
@@ -22,5 +27,10 @@ router
   .get(getTour)
   .patch(updateTour)
   .delete(verifyToken, restrict('admin'), deleteTour);
+
+// nested route - NOT RECOMMEND
+// router
+//   .route('/:tourId/reviews')
+//   .post(verifyToken, restrict('admin'), createReview);
 
 module.exports = router;

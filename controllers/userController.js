@@ -3,7 +3,13 @@ const AppError = require('../utils/appError');
 
 const catchAsync = require('../utils/catchAsync');
 const { API_STATUS } = require('../constants/common');
-const { signToken } = require('../utils/tokenHelper');
+const {
+  updateOne,
+  createOne,
+  deleteOne,
+  getOne,
+  getAll,
+} = require('../controllers/factoryHandler');
 
 const filterRequestBody = (bodyObj, ...allowedFields) => {
   let res;
@@ -18,40 +24,22 @@ const filterRequestBody = (bodyObj, ...allowedFields) => {
   return res;
 };
 
+const getAllUsers = getAll(User);
+const createUser = createOne(User);
+const updateUser = updateOne(User);
+const deleteUser = deleteOne(User);
+const getUser = getOne(User);
 
-
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find({});
-
+const deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
   res.status(200).json({
-    status: 'succuess',
-    result: users.length,
-    data: { users },
+    status: 'success',
+    message:
+      'User has been deactived - Please contact the admin to re-active the user',
   });
 });
 
-exports.createUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'API is implementing',
-  });
-};
-
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'API is implementing',
-  });
-};
-
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'API is implementing',
-  });
-};
-
-exports.updateLoggedInUser = catchAsync(async (req, res, next) => {
+const updateLoggedInUser = catchAsync(async (req, res, next) => {
   const { password, passwordConfirm, role } = req.body;
 
   if (password || passwordConfirm) {
@@ -82,29 +70,12 @@ exports.updateLoggedInUser = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteMe = catchAsync(async (req, res, next) => {
-  await User.findByIdAndUpdate(req.user.id, { active: false });
-  res.status(200).json({
-    status: 'success',
-    message:
-      'User has been deactived - Please contact the admin to re-active the user',
-  });
-});
-
-exports.deleteUser = catchAsync(async (req, res, next) => {
-  const requestedParams = req.params;
-  const deletedUser = await User.findByIdAndDelete(requestedParams.id);
-  if (!deletedUser) {
-    return next(
-      new AppError(
-        `No user found with id: ${requestedParams.id}`,
-        API_STATUS.NOT_FOUND
-      )
-    );
-  }
-
-  res.status(204).json({
-    status: 'success',
-    // message: 'User has been deleted successful',
-  });
-});
+module.exports = {
+  getAllUsers,
+  createUser,
+  updateUser,
+  deleteMe,
+  getUser,
+  deleteUser,
+  updateLoggedInUser,
+};
