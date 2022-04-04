@@ -24,6 +24,12 @@ const filterRequestBody = (bodyObj, ...allowedFields) => {
   return res;
 };
 
+// middleware to pass user logged in id as request params Id
+const getMe = (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+};
+
 const getAllUsers = getAll(User);
 const createUser = createOne(User);
 const updateUser = updateOne(User);
@@ -76,6 +82,7 @@ module.exports = {
   updateUser,
   deleteMe,
   getUser,
+  getMe,
   deleteUser,
   updateLoggedInUser,
 };
