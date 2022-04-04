@@ -21,12 +21,14 @@ router.use('/:tourId/reviews', reviewRouter);
 router.route('/top-5-tours').get(getTopCheap, getAllTours);
 router.route('/stats').get(getTourStats);
 router.route('/monthly-plan/:year').get(getMonthlyPlan);
-router.route('/').get(verifyToken, getAllTours).post(createTour);
+
+router.use(verifyToken);
+router.route('/').get(getAllTours).post(restrict('admin'), createTour);
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
-  .delete(verifyToken, restrict('admin'), deleteTour);
+  .patch(restrict(['guide', 'admin']), updateTour)
+  .delete(restrict('admin'), deleteTour);
 
 // nested route - NOT RECOMMEND
 // router
