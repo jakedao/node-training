@@ -210,7 +210,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError(AUTH_MSG.TOKEN_INVALID_MSG, 400));
   }
 
-  console.log('checking password input', password, passwordConfirm);
   user.password = password;
   user.passwordConfirm = passwordConfirm;
   user.passwordResetToken = undefined;
