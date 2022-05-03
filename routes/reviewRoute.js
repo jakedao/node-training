@@ -5,6 +5,7 @@ const {
   getReview,
   deleteReview,
   populateNested,
+  updateReview,
 } = require('../controllers/reviewController');
 const { verifyToken, restrict } = require('../controllers/authController');
 
@@ -17,6 +18,7 @@ router
 router
   .route('/:id')
   .get(getReview)
+  .patch(verifyToken, updateReview)
   .delete(verifyToken, restrict('admin'), deleteReview);
 
 module.exports = router;

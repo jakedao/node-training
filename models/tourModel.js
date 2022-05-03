@@ -38,12 +38,6 @@ const tourSchema = new mongoose.Schema(
         message: 'The difficulty should be easy or medium or difficult',
       },
     },
-    ratingAverage: {
-      type: Number,
-      default: 4.5,
-      min: [1, 'Rating should above 1.0 '],
-      max: [5, 'Rating should below 5.0'],
-    },
     ratingQuantity: {
       type: Number,
       default: 0,
@@ -51,6 +45,8 @@ const tourSchema = new mongoose.Schema(
     rating: {
       type: Number,
       default: 4.5,
+      min: [1, 'Rating should above 1.0 '],
+      max: [5, 'Rating should below 5.0'],
     },
     price: {
       type: Number,
@@ -127,6 +123,10 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// INDEXES
+tourSchema.index({ price: 1, ratingAverage: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
+
 // VIRTUAL
 tourSchema.virtual('durationWeeks').get(function () {
   return (this.duration / 7).toFixed(2);
@@ -168,20 +168,20 @@ tourSchema.pre('save', function (next) {
 //   next();
 // });
 
-tourSchema.pre(/^find/, function (next) {
-  // this.find({ secretTour: { $ne: true } });
-  // console.log(
-  //   'It should be fire in any Find method include findById(), findOne()'
-  // );
-  next();
-});
+// tourSchema.pre(/^find/, function (next) {
+//   // this.find({ secretTour: { $ne: true } });
+//   // console.log(
+//   //   'It should be fire in any Find method include findById(), findOne()'
+//   // );
+//   next();
+// });
 
 //AGREGATION MIDDLEWARE
-tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
-  console.log('Middle ware from aggregating', this.pipeline());
-  next();
-});
+// tourSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
+//   console.log('Middle ware from aggregating', this.pipeline());
+//   next();
+// });
 
 const Tour = mongoose.model('Tour', tourSchema);
 

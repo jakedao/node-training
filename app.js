@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compression = require('compression');
 
 const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoute');
@@ -56,6 +57,8 @@ app.use(
 //   req.requestedAt = new Date().toISOString();
 //   next();
 // });
+
+app.use(compression());
 
 app.use(USERS_API, userRouter);
 app.use(TOURS_API, tourRouter);

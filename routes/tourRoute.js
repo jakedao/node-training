@@ -9,6 +9,8 @@ const {
   getTopCheap,
   getTourStats,
   getMonthlyPlan,
+  getTourInRange,
+  getTourDistance,
 } = require('../controllers/tourController');
 
 const reviewRouter = require('./reviewRoute');
@@ -24,6 +26,8 @@ router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 router.use(verifyToken);
 router.route('/').get(getAllTours).post(restrict('admin'), createTour);
+router.route('/range').get(getTourInRange);
+router.route('/distance').get(getTourDistance);
 router
   .route('/:id')
   .get(getTour)

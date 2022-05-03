@@ -33,6 +33,9 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+// INDEX
+reviewSchema.index({ reviewedOn: 1, reviewedBy: 1 }, { unique: true });
+
 // MIDDLEWARE
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
@@ -48,6 +51,43 @@ reviewSchema.pre(/^find/, function (next) {
 //   this.reviewedOn = await Tour.findById(this.reviewedOn).select('name');
 //   next();
 // });
+
+reviewSchema.statics.calcAverageRating = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { reviewedOn: tourId },
+    },
+    {
+      $group: {
+        _id: '$reviewedOn',
+        totalRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  await Tour.findByIdAndUpdate(tourId, {
+    rating: stats[0]?.avgRating,
+    ratingQuantity: stats[0]?.totalRating,
+  });
+};
+
+// ONLY creating Reviewp
+reviewSchema.pre('save', function (next) {
+  this.constructor.calcAverageRating(this.reviewedOn);
+  next();
+});
+
+// Recalculating rating when Update OR Delete - Regular Expression to for find Id and Update
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.original = await this.findOne();
+  next();
+});
+reviewSchema.post(/^findOneAnd/, async function (next) {
+  // this.original = await this.findOne(); // => Not use this as the query already executed and no longer accessible
+
+  await this.original.constructor.calcAverageRating(this.original.reviewedOn);
+});
 
 const Review = mongoose.model('Review', reviewSchema);
 
