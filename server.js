@@ -23,9 +23,8 @@ mongoose
 app.get('/', (req, res) => {
   res.status(200).send('Hello from the server side ! 😙');
 });
-const server = app.listen(port, () => {
-  console.log(`App is running on port ${port} ...`);
-});
+
+const server = app.listen(process.env.PORT, '0.0.0.0');
 
 // Unhandle Reject handling
 process.on('unhandledRejection', (err) => {
