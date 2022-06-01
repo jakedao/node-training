@@ -20,6 +20,9 @@ const REVIEWS_API = '/api/v1/reviews';
 // init app
 const app = express();
 
+// trust the proxy
+app.enable("trust proxy")
+
 // set secure http requests
 app.use(helmet());
 

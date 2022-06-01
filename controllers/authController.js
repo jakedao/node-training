@@ -14,7 +14,7 @@ const { API_STATUS } = require('../constants/common');
 const { AUTH_MSG } = require('../constants/message');
 const { sendEmail } = require('../utils/email');
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode,req, res) => {
   // create token
   const token = signToken(user._id);
 
@@ -24,11 +24,9 @@ const createSendToken = (user, statusCode, res) => {
       // Current Date + 4 * days * hours * seconds * miliseconds
       Date.now() + process.env.JWT_COOKIES_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    secure: false, // TRUE - only set cookies when call with https request
+    secure: req.secure || req.headers('x-forwarded-proto' === 'https'),
     httpOnly: true, // can not be accessed or modified by browser => Prevent site scripting attack
   };
-
-  if (process.env.NODE_ENV === 'production') cookieOpts.secure = true;
 
   // set jwt to cookie storage
   res.cookie('jwt', token, cookieOpts);
@@ -56,7 +54,7 @@ exports.signUp = catchAsync(async (req, res) => {
     role,
   });
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.signIn = catchAsync(async (req, res, next) => {
