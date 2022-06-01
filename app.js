@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const compression = require('compression');
+const cors = require('cors');
 
 const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoute');
@@ -20,7 +21,7 @@ const REVIEWS_API = '/api/v1/reviews';
 // init app
 const app = express();
 
-// trust the proxy
+// trust the proxy 
 app.enable("trust proxy")
 
 // set secure http requests
@@ -38,6 +39,11 @@ const limiter = rateLimiter({
   message: 'Too many request from this IP - please again after an hour',
 });
 app.use('/api', limiter);
+
+// CORS
+app.use(cors());
+
+app.options("*", cors());
 
 // for parsing application/json => send json data in req.body
 app.use(express.json());
